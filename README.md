@@ -1,169 +1,142 @@
-# Astra Platform 🚀# Astra Platform 🚀
+# Astra Platform 🚀
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+A Kubernetes-native infrastructure platform for Azure Container Apps using Crossplane. Deploy, manage, and scale containerized applications across multiple environments with declarative infrastructure as code.
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)[![Azure DevOps Build](https://dev.azure.com/your-org/astra-platform/_apis/build/status/validate-pipeline)](https://dev.azure.com/your-org/astra-platform/_build)
+## 📚 Complete Documentation
 
-[![Release](https://img.shields.io/github/v/release/your-org/astra-platform)](https://github.com/your-org/astra-platform/releases)
+**All project documentation is centralized in the [docs/](docs/) folder.**
 
-A Kubernetes-native infrastructure platform for Azure Container Apps using Crossplane. Deploy, manage, and scale containerized applications across multiple environments with declarative infrastructure as code.[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+👉 **Start here**: [Documentation Index](docs/README.md)
 
+## ✨ Features
 
-
-## 📚 Complete DocumentationA Kubernetes-native infrastructure platform for Azure Container Apps using Crossplane. Deploy, manage, and scale containerized applications across multiple environments with declarative infrastructure as code.
-
-
-
-**All project documentation is centralized in the [docs/](docs/) folder.**## ✨ Features
-
-
-
-👉 **Start here**: [Documentation Index](docs/README.md)- 🏗️ **Crossplane-Native**: Kubernetes-native infrastructure management
-
+- 🏗️ **Crossplane-Native**: Kubernetes-native infrastructure management
 - ☁️ **Azure Container Apps**: Serverless container platform with auto-scaling
-
-## 🚀 Quick Start- 🔐 **Security First**: Managed identities, RBAC, Key Vault integration
-
+- 🔐 **Security First**: Managed identities, RBAC, Key Vault integration
 - 🌍 **Multi-Environment**: Development, staging, and production deployments
+- 🚀 **CI/CD Ready**: Azure DevOps pipelines with comprehensive automation
+- 📊 **Observable**: Built-in monitoring and logging capabilities
+- 🔧 **Cross-Platform**: Works on macOS, Windows, and Linux
+- 📚 **Well-Documented**: Comprehensive guides and troubleshooting resources
 
-```bash- 🚀 **CI/CD Ready**: Azure DevOps pipelines with comprehensive automation
+## 🚀 Quick Start
 
-# 1. Clone the repository- 📊 **Observable**: Built-in monitoring and logging capabilities
+Get the Astra Platform running in 15 minutes:
 
-git clone https://github.com/your-org/astra-platform.git- 🔧 **Cross-Platform**: Works on macOS, Windows, and Linux
-
-cd astra-platform- 📚 **Well-Documented**: Comprehensive guides and troubleshooting resources
-
-
-
-# 2. Set Azure credentials## 🚀 Quick Start
-
-export AZURE_CLIENT_ID="your-client-id"
-
-export AZURE_CLIENT_SECRET="your-client-secret"Get the Astra Platform running in 15 minutes:
-
-export AZURE_TENANT_ID="your-tenant-id"
-
-export AZURE_SUBSCRIPTION_ID="your-subscription-id"```bash
-
+```bash
 # 1. Clone the repository
+git clone https://github.com/your-org/astra-platform.git
+cd astra-platform
 
-# 3. Install platformgit clone https://github.com/your-org/astra-platform.git
-
-./scripts/install.shcd astra-platform
-
-
-
-# 4. Deploy to development# 2. Set Azure credentials
-
-./scripts/deploy.sh dev --waitexport AZURE_CLIENT_ID="your-client-id"
-
-```export AZURE_CLIENT_SECRET="your-client-secret"
-
+# 2. Set Azure credentials
+export AZURE_CLIENT_ID="your-client-id"
+export AZURE_CLIENT_SECRET="your-client-secret"
 export AZURE_TENANT_ID="your-tenant-id"
+export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 
-## 📖 Key Documentationexport AZURE_SUBSCRIPTION_ID="your-subscription-id"
+# 3. Install platform
+./scripts/install.sh
 
+# 4. Deploy to development
+./scripts/deploy.sh dev --wait
 
-
-| Topic | Link | Description |# 3. Install platform
-
-|-------|------|-------------|./scripts/install.sh
-
-| **Getting Started** | [docs/getting-started/](docs/getting-started/) | Prerequisites, setup guides, and quick start |
-
-| **Architecture** | [docs/architecture/](docs/architecture/) | Platform architecture and design |# 4. Deploy to development
-
-| **User Guides** | [docs/user-guides/](docs/user-guides/) | Application deployment and environment management |./scripts/deploy.sh dev --wait
-
-| **Operations** | [docs/operations/](docs/operations/) | CI/CD setup and operational guides |
-
-| **Reference** | [docs/reference/](docs/reference/) | API reference, scripts, and examples |# 5. Get your application URL
-
-| **Development** | [docs/development/](docs/development/) | Contributing, testing, and development setup |./scripts/deploy.sh dev --urls
-
-| **Planning** | [docs/planning/](docs/planning/) | Project planning, prompts, and execution plans |```
-
-| **Troubleshooting** | [docs/troubleshooting/](docs/troubleshooting/) | Common issues and debugging |
+# 5. Get your application URL
+./scripts/deploy.sh dev --urls
+```
 
 Your containerized application will be running on Azure Container Apps with:
-
-## ✨ Key Features- ✅ Automatic HTTPS with managed certificates
-
+- ✅ Automatic HTTPS with managed certificates
 - ✅ Auto-scaling based on demand (1-10 replicas)
+- ✅ Managed identity for secure Azure service access
+- ✅ Container registry for image storage
+- ✅ Key Vault for secrets management
+- ✅ Blob storage for application data
 
-- 🏗️ **Crossplane-Native**: Kubernetes-native infrastructure management- ✅ Managed identity for secure Azure service access
+**📖 For detailed instructions**: See the [Quick Start Guide](docs/getting-started/quick-start.md)
 
-- ☁️ **Azure Container Apps**: Serverless container platform with auto-scaling- ✅ Container registry for image storage
+## 📖 Key Documentation
 
-- 🔐 **Security First**: Managed identities, RBAC, Key Vault integration- ✅ Key Vault for secrets management
+| Topic | Link | Description |
+|-------|------|-------------|
+| **Getting Started** | [docs/getting-started/](docs/getting-started/) | Prerequisites, setup guides, and quick start |
+| **Architecture** | [docs/architecture/](docs/architecture/) | Platform architecture and design |
+| **User Guides** | [docs/user-guides/](docs/user-guides/) | Application deployment and environment management |
+| **Operations** | [docs/operations/](docs/operations/) | CI/CD setup and operational guides |
+| **Reference** | [docs/reference/](docs/reference/) | API reference, scripts, and examples |
+| **Development** | [docs/development/](docs/development/) | Contributing, testing, and development setup |
+| **Planning** | [docs/planning/](docs/planning/) | Project planning, prompts, and execution plans |
+| **Troubleshooting** | [docs/troubleshooting/](docs/troubleshooting/) | Common issues and debugging |
 
-- 🌍 **Multi-Environment**: Development, staging, and production deployments- ✅ Blob storage for application data
+## ✨ Key Features
 
+- 🏗️ **Crossplane-Native**: Kubernetes-native infrastructure management
+- ☁️ **Azure Container Apps**: Serverless container platform with auto-scaling
+- 🔐 **Security First**: Managed identities, RBAC, Key Vault integration
+- 🌍 **Multi-Environment**: Development, staging, and production deployments
 - 🚀 **CI/CD Ready**: Azure DevOps pipelines with comprehensive automation
-
-- 📊 **Observable**: Built-in monitoring and logging capabilities## 🏗️ Architecture
-
+- 📊 **Observable**: Built-in monitoring and logging capabilities
 - 🔧 **Cross-Platform**: Works on macOS, Windows, and Linux
 
+## 📂 Project Structure
+
+```
+astra-platform/
+├── docs/                    # 📚 Complete documentation (START HERE)
+├── packages/               # Crossplane XRDs and Compositions
+├── overlays/              # Environment-specific configurations (dev/staging/prod)
+├── pipelines/             # Azure DevOps CI/CD pipelines
+├── scripts/               # Automation scripts
+└── tests/                # Test suites (unit, integration, e2e)
+```
+
+## 📞 Support
+
+- **📖 Full Documentation**: [docs/README.md](docs/README.md)
+- **🚀 Quick Start Guide**: [docs/getting-started/quick-start.md](docs/getting-started/quick-start.md)
+- **🐛 Issues**: Create an issue in the GitHub repository
+- **💬 Discussions**: Use GitHub Discussions for questions
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Built with ❤️ by the Astra Platform Team**
+
+*For complete documentation, guides, and references, see [docs/README.md](docs/README.md)*
+
 ```mermaid
-
-## 📂 Project Structuregraph TB
-
+graph TB
     subgraph "Local Environment"
-
-```        K8s[Kubernetes<br/>Minikube/Docker Desktop]
-
-astra-platform/        CP[Crossplane Control Plane]
-
-├── docs/                    # 📚 Complete documentation (START HERE)        XRD[Platform XRDs]
-
-├── packages/               # Crossplane XRDs and Compositions    end
-
-├── overlays/              # Environment-specific configurations (dev/staging/prod)    
-
-├── pipelines/             # Azure DevOps CI/CD pipelines    subgraph "Azure Cloud"
-
-├── scripts/               # Automation scripts        subgraph "astra-dev-*"
-
-└── tests/                # Test suites (unit, integration, e2e)            RG1[Resource Group]
-
-```            MI1[Managed Identity]
-
-            KV1[Key Vault]
-
-## 📞 Support            ACR1[Container Registry]
-
-            SA1[Storage Account]
-
-- **📖 Full Documentation**: [docs/README.md](docs/README.md)            CA1[Container App]
-
-- **🚀 Quick Start Guide**: [docs/getting-started/quick-start.md](docs/getting-started/quick-start.md)        end
-
-- **🐛 Issues**: Create an issue in the GitHub repository        
-
-- **💬 Discussions**: Use GitHub Discussions for questions        subgraph "astra-prod-*"
-
-            RG2[Resource Group]
-
-## 📄 License            MI2[Managed Identity]
-
-            KV2[Key Vault]
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.            ACR2[Container Registry]
-
-            SA2[Storage Account]
-
----            CA2[Container App]
-
-        end
-
-**Built with ❤️ by the Astra Platform Team**    end
-
+        K8s[Kubernetes<br/>Minikube/Docker Desktop]
+        CP[Crossplane Control Plane]
+        XRD[Platform XRDs]
+    end
     
-
-*For complete documentation, guides, and references, see [docs/README.md](docs/README.md)*    CP --> XRD
-
+    subgraph "Azure Cloud"
+        subgraph "astra-dev-*"
+            RG1[Resource Group]
+            MI1[Managed Identity]
+            KV1[Key Vault]
+            ACR1[Container Registry]
+            SA1[Storage Account]
+            CA1[Container App]
+        end
+        
+        subgraph "astra-prod-*"
+            RG2[Resource Group]
+            MI2[Managed Identity]
+            KV2[Key Vault]
+            ACR2[Container Registry]
+            SA2[Storage Account]
+            CA2[Container App]
+        end
+    end
+    
+    CP --> XRD
     XRD --> RG1
     XRD --> RG2
     RG1 --> MI1 --> KV1
@@ -208,22 +181,18 @@ astra-platform/
 
 Before getting started, ensure you have:
 
-- **Kubernetes Cluster**: Minikube (recommended) or Docker Desktop
+- **Kubernetes Cluster**: Minikube (recommended), Docker Desktop, or AKS
 - **Azure Account**: Active subscription with Contributor permissions
-- **Tools**: kubectl, helm, Azure CLI, Docker
+- **Tools**: kubectl, helm, Azure CLI, Docker, Minikube
 
-For detailed setup instructions, see:
-- [Prerequisites Guide](docs/getting-started/prerequisites.md)
-- [Minikube Setup Guide](docs/getting-started/minikube-setup.md)
+For detailed setup instructions, see [Prerequisites Guide](docs/getting-started/prerequisites.md).
 
 ## 📖 Documentation
 
 ### 🚀 Getting Started
 - [**Prerequisites**](docs/getting-started/prerequisites.md) - Required tools and setup
-- [**Minikube Setup**](docs/getting-started/minikube-setup.md) - Minikube configuration guide
 - [**Initial Setup**](docs/getting-started/initial-setup.md) - Complete setup guide
 - [**Quick Start**](docs/getting-started/quick-start.md) - 15-minute deployment
-- [**GitHub Setup**](docs/GITHUB-SETUP.md) - Push your platform to GitHub
 
 ### 🏗️ Architecture
 - [**Platform Architecture**](docs/architecture/platform-architecture.md) - Technical overview
@@ -243,11 +212,7 @@ For detailed setup instructions, see:
 - [**Common Issues**](docs/troubleshooting/common-issues.md) - FAQ and solutions
 - [**Debugging Guide**](docs/troubleshooting/debugging.md) - Step-by-step troubleshooting
 
-### 📚 Additional Resources
-- [**Minikube Primary Setup**](docs/MINIKUBE-PRIMARY-SETUP.md) - Complete Minikube migration summary
-- [**GitHub Setup Guide**](docs/GITHUB-SETUP.md) - Repository setup instructions
-
-### 📖 Complete Documentation
+### 📚 Complete Documentation
 See the [Documentation Index](docs/README.md) for all available guides.
 
 ## 🛠️ Usage Examples
