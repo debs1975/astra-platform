@@ -1,0 +1,554 @@
+# Azure DevOps Pipeline for Astra Platform
+# This pipeline validates, builds, tests, and deploys the Crossplane-based infrastructure
+
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+    - release/*
+  paths:
+    exclude:
+    - README.md
+    - docs/**
+    - '*.md'
+
+pr:
+  branches:
+    include:
+    - main
+    - develop
+  paths:
+    exclude:
+    - README.md
+    - docs/**
+    - '*.md'
+
+variables:
+  # Pipeline Configuration
+  vmImageName: 'ubuntu-latest'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
+  
+  # Crossplane Configuration
+  crossplaneVersion: '1.14.0'
+  azureProviderVersion: 'v0.36.0'
+  
+  # Azure Configuration
+  azureLocation: 'centralindia'
+  resourcePrefix: 'astra'
+  
+  # Test Configuration
+  testTimeout: '15m'
+  integrationTestTimeout: '30m'
+  e2eTestTimeout: '45m'
+
+stages:
+- stage: 'Validate'
+  displayName: 'Validation Stage'
+  jobs:
+  - job: 'ValidateCode'
+    displayName: 'Code Validation'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+    
+    - task: Bash@3
+      displayName: 'Validate YAML Files'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Validating YAML files..."
+          
+          # Install yq for YAML validation
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          
+          # Validate all YAML files
+          find . -name "*.yaml" -o -name "*.yml" | while read file; do
+            echo "Validating $file"
+            if ! yq eval . "$file" > /dev/null 2>&1; then
+              echo "❌ Invalid YAML: $file"
+              exit 1
+            else
+              echo "✅ Valid YAML: $file"
+            fi
+          done
+          
+          echo "All YAML files are valid!"
+    
+    - task: Bash@3
+      displayName: 'Validate Crossplane Resources'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Validating Crossplane XRDs and Compositions..."
+          
+          # Check XRD files
+          xrd_count=$(find packages -name "definition.yaml" | wc -l)
+          if [ "$xrd_count" -ne 7 ]; then
+            echo "❌ Expected 7 XRD files, found $xrd_count"
+            exit 1
+          fi
+          
+          # Check Composition files
+          comp_count=$(find packages -name "composition.yaml" | wc -l)
+          if [ "$comp_count" -ne 7 ]; then
+            echo "❌ Expected 7 Composition files, found $comp_count"
+            exit 1
+          fi
+          
+          echo "✅ Crossplane resource validation passed"
+    
+    - task: Bash@3
+      displayName: 'Validate Resource Naming Convention'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Validating resource naming conventions..."
+          
+          # Check for astra prefix in resource names
+          if ! grep -r "astra-" packages/ > /dev/null; then
+            echo "❌ Resources should follow astra-* naming convention"
+            exit 1
+          fi
+          
+          # Check for environment support
+          if ! grep -r "dev\|staging\|prod" overlays/ > /dev/null; then
+            echo "❌ Environment overlays should support dev, staging, prod"
+            exit 1
+          fi
+          
+          echo "✅ Naming convention validation passed"
+
+- stage: 'Test'
+  displayName: 'Testing Stage'
+  dependsOn: 'Validate'
+  condition: succeeded()
+  jobs:
+  - job: 'UnitTests'
+    displayName: 'Unit Tests'
+    pool:
+      vmImage: $(vmImageName)
+    timeoutInMinutes: 15
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+    
+    - task: Bash@3
+      displayName: 'Setup Test Environment'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Setting up test environment..."
+          
+          # Make scripts executable
+          chmod +x scripts/*.sh
+          chmod +x tests/**/*.sh
+          
+          # Setup test data
+          if [ -f "tests/setup-test-data.sh" ]; then
+            ./tests/setup-test-data.sh
+          fi
+          
+          echo "Test environment setup completed"
+    
+    - task: Bash@3
+      displayName: 'Run Unit Tests'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Running unit tests..."
+          
+          # Run unit tests
+          ./scripts/test.sh unit
+          
+          echo "Unit tests completed"
+      timeoutInMinutes: 10
+    
+    - task: PublishTestResults@2
+      displayName: 'Publish Unit Test Results'
+      condition: always()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'tests/reports/unit-*.xml'
+        failTaskOnFailedTests: true
+        testRunTitle: 'Unit Tests'
+    
+  - job: 'IntegrationTests'
+    displayName: 'Integration Tests'
+    pool:
+      vmImage: $(vmImageName)
+    timeoutInMinutes: 30
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+    - group: 'astra-azure-credentials'
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+    
+    - task: AzureCLI@2
+      displayName: 'Setup Azure Context'
+      inputs:
+        azureSubscription: 'astra-service-connection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Setting up Azure context..."
+          az account show
+          echo "Azure context ready"
+    
+    - task: Bash@3
+      displayName: 'Run Integration Tests'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Running integration tests..."
+          
+          # Set Azure credentials for tests
+          export AZURE_SUBSCRIPTION_ID="$(AZURE_SUBSCRIPTION_ID)"
+          export AZURE_TENANT_ID="$(AZURE_TENANT_ID)"
+          export AZURE_CLIENT_ID="$(AZURE_CLIENT_ID)"
+          export AZURE_CLIENT_SECRET="$(AZURE_CLIENT_SECRET)"
+          
+          # Run integration tests
+          ./scripts/test.sh integration
+          
+          echo "Integration tests completed"
+      timeoutInMinutes: 25
+    
+    - task: PublishTestResults@2
+      displayName: 'Publish Integration Test Results'
+      condition: always()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'tests/reports/integration-*.xml'
+        failTaskOnFailedTests: true
+        testRunTitle: 'Integration Tests'
+
+- stage: 'Security'
+  displayName: 'Security Scanning'
+  dependsOn: 'Validate'
+  condition: succeeded()
+  jobs:
+  - job: 'SecurityScan'
+    displayName: 'Security Analysis'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+    
+    - task: Bash@3
+      displayName: 'Secret Detection'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Running secret detection..."
+          
+          # Install truffleHog for secret detection
+          pip install truffleHog
+          
+          # Scan for secrets
+          trufflehog --regex --entropy=False .
+          
+          echo "Secret detection completed"
+    
+    - task: Bash@3
+      displayName: 'YAML Security Validation'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Validating YAML security configurations..."
+          
+          # Check for hardcoded secrets or credentials
+          if grep -r -i "password\|secret\|key" packages/ --include="*.yaml" | grep -v "secretRef\|passwordRef"; then
+            echo "❌ Potential hardcoded secrets found"
+            exit 1
+          fi
+          
+          echo "✅ YAML security validation passed"
+
+- stage: 'Build'
+  displayName: 'Build Stage'
+  dependsOn: 
+  - 'Test'
+  - 'Security'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - job: 'BuildPackage'
+    displayName: 'Build and Package'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+    
+    - task: Bash@3
+      displayName: 'Package Crossplane Resources'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Packaging Crossplane resources..."
+          
+          # Create package structure
+          mkdir -p build/package
+          
+          # Copy XRDs and Compositions
+          cp -r packages/* build/package/
+          cp -r overlays/* build/package/
+          
+          # Create package metadata
+          cat > build/package/crossplane.yaml << EOF
+          apiVersion: meta.pkg.crossplane.io/v1
+          kind: Configuration
+          metadata:
+            name: astra-platform
+            annotations:
+              meta.crossplane.io/maintainer: Astra Platform Team
+              meta.crossplane.io/description: Azure Container Apps platform with Crossplane
+          spec:
+            crossplane:
+              version: ">=v1.14.0"
+            dependsOn:
+            - provider: xpkg.upbound.io/crossplane-contrib/provider-azure
+              version: ">=v0.36.0"
+          EOF
+          
+          echo "✅ Package created successfully"
+    
+    - task: ArchiveFiles@2
+      displayName: 'Archive Package'
+      inputs:
+        rootFolderOrFile: 'build/package'
+        includeRootFolder: false
+        archiveType: 'tar'
+        tarCompression: 'gz'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/astra-platform-$(Build.BuildId).tar.gz'
+    
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'astra-platform-package'
+
+- stage: 'Deploy'
+  displayName: 'Deployment Stage'
+  dependsOn: 'Build'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  variables:
+  - group: 'astra-azure-credentials'
+  - group: 'astra-kubernetes-config'
+  jobs:
+  - deployment: 'DeployDev'
+    displayName: 'Deploy to Development'
+    environment: 'astra-dev'
+    pool:
+      vmImage: $(vmImageName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            displayName: 'Checkout Repository'
+          
+          - task: DownloadBuildArtifacts@1
+            displayName: 'Download Build Artifacts'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'astra-platform-package'
+              downloadPath: '$(System.ArtifactsDirectory)'
+          
+          - task: KubectlInstaller@0
+            displayName: 'Install kubectl'
+            inputs:
+              kubectlVersion: 'latest'
+          
+          - task: Bash@3
+            displayName: 'Setup Kubernetes Context'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Setting up Kubernetes context..."
+                
+                # Create kubeconfig from variables
+                mkdir -p ~/.kube
+                echo "$(KUBE_CONFIG)" | base64 -d > ~/.kube/config
+                
+                # Verify connection
+                kubectl cluster-info
+                
+                echo "Kubernetes context ready"
+          
+          - task: Bash@3
+            displayName: 'Install Crossplane'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Installing Crossplane..."
+                
+                # Add Crossplane Helm repository
+                helm repo add crossplane-stable https://charts.crossplane.io/stable
+                helm repo update
+                
+                # Install Crossplane
+                helm upgrade --install crossplane crossplane-stable/crossplane \
+                  --namespace crossplane-system \
+                  --create-namespace \
+                  --version $(crossplaneVersion) \
+                  --wait
+                
+                echo "Crossplane installed successfully"
+          
+          - task: AzureCLI@2
+            displayName: 'Setup Azure Provider'
+            inputs:
+              azureSubscription: 'astra-service-connection'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Setting up Azure Provider..."
+                
+                # Create Azure credentials secret
+                kubectl create secret generic azure-secret -n crossplane-system \
+                  --from-literal=creds='{
+                    "clientId": "$(AZURE_CLIENT_ID)",
+                    "clientSecret": "$(AZURE_CLIENT_SECRET)", 
+                    "subscriptionId": "$(AZURE_SUBSCRIPTION_ID)",
+                    "tenantId": "$(AZURE_TENANT_ID)"
+                  }' --dry-run=client -o yaml | kubectl apply -f -
+                
+                echo "Azure credentials configured"
+          
+          - task: Bash@3
+            displayName: 'Deploy Platform Components'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Deploying platform components..."
+                
+                # Make deployment script executable
+                chmod +x scripts/deploy.sh
+                
+                # Deploy to dev environment
+                ./scripts/deploy.sh dev
+                
+                echo "Platform deployment completed"
+            timeoutInMinutes: 30
+          
+          - task: Bash@3
+            displayName: 'Run E2E Tests'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Running end-to-end tests..."
+                
+                # Set environment for E2E tests
+                export TEST_ENVIRONMENT=dev
+                export AZURE_SUBSCRIPTION_ID="$(AZURE_SUBSCRIPTION_ID)"
+                
+                # Run E2E tests
+                ./scripts/test.sh e2e
+                
+                echo "E2E tests completed"
+            timeoutInMinutes: 45
+          
+          - task: PublishTestResults@2
+            displayName: 'Publish E2E Test Results'
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'tests/reports/e2e-*.xml'
+              failTaskOnFailedTests: true
+              testRunTitle: 'E2E Tests - Dev Environment'
+
+  - deployment: 'DeployStaging'
+    displayName: 'Deploy to Staging'
+    dependsOn: 'DeployDev'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    environment: 'astra-staging'
+    pool:
+      vmImage: $(vmImageName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            displayName: 'Checkout Repository'
+          
+          - task: Bash@3
+            displayName: 'Deploy to Staging Environment'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Deploying to staging environment..."
+                
+                # Setup staging-specific configurations
+                export ENVIRONMENT=staging
+                
+                # Deploy to staging
+                ./scripts/deploy.sh staging
+                
+                echo "Staging deployment completed"
+            timeoutInMinutes: 30
+
+- stage: 'Release'
+  displayName: 'Release Stage'
+  dependsOn: 'Deploy'
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'))
+  jobs:
+  - job: 'CreateRelease'
+    displayName: 'Create Release'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+    
+    - task: Bash@3
+      displayName: 'Create Release Package'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Creating release package..."
+          
+          # Extract version from branch name
+          VERSION=$(echo $(Build.SourceBranchName) | sed 's/release\///')
+          echo "Release version: $VERSION"
+          
+          # Create release notes
+          cat > RELEASE_NOTES.md << EOF
+          # Astra Platform Release $VERSION
+          
+          ## Features
+          - Azure Container Apps deployment with Crossplane
+          - Multi-environment support (dev/staging/prod)  
+          - Comprehensive testing infrastructure
+          - Azure DevOps CI/CD integration
+          
+          ## Components
+          - Crossplane $(crossplaneVersion)
+          - Azure Provider $(azureProviderVersion)
+          - 7 Crossplane resource definitions
+          - Complete automation scripts
+          
+          ## Deployment
+          Supports local deployment on Windows and macOS with Central India as default region.
+          EOF
+          
+          echo "Release package created"
+    
+    - task: GitHubRelease@1
+      displayName: 'Create GitHub Release'
+      inputs:
+        gitHubConnection: 'github-connection'
+        repositoryName: '$(Build.Repository.Name)'
+        action: 'create'
+        target: '$(Build.SourceVersion)'
+        tagSource: 'userSpecifiedTag'
+        tag: 'v$(Build.SourceBranchName)'
+        title: 'Astra Platform v$(Build.SourceBranchName)'
+        releaseNotesFilePath: 'RELEASE_NOTES.md'
+        assets: '$(Build.ArtifactStagingDirectory)/**'

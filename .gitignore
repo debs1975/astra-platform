@@ -1,0 +1,94 @@
+# Astra Platform - Git Ignore File
+
+# Secrets and credentials
+.env
+.env.local
+.env.*.local
+*.secret
+*.key
+*.pem
+azure-credentials.json
+service-principal.json
+
+# Azure CLI
+.azure/
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+.kube/
+
+# Crossplane
+crossplane-system/
+
+# Minikube
+.minikube/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# IDE and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Logs
+logs/
+*.log
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+dist/
+build/
+*.tar.gz
+*.zip
+
+# Test coverage
+coverage/
+*.cover
+.coverage
+
+# Helm
+charts/*.tgz
+
+# Backup files
+*.bak
+*.backup
+
+# Local configuration overrides
+local-config.yaml
+local-values.yaml
+
+# Sensitive test data
+tests/.env.test.local
+tests/credentials/

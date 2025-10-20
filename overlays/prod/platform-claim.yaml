@@ -1,0 +1,22 @@
+apiVersion: astra.platform/v1alpha1
+kind: XPlatform
+metadata:
+  name: astra-prod-platform
+  namespace: astra-prod
+  labels:
+    environment: prod
+    platform: astra
+spec:
+  parameters:
+    namingPrefix: "astra-prod"
+    location: "Central India"
+    tenantId: "YOUR_TENANT_ID"  # Replace with your Azure tenant ID
+    containerImage: "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+    containerPort: 80
+    externalIngress: true
+    minReplicas: 3
+    maxReplicas: 10
+    cpu: 1.0
+    memory: "2Gi"
+  compositionRef:
+    name: xplatforms.astra.platform

@@ -1,0 +1,64 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xkeyvaults.astra.platform
+spec:
+  group: astra.platform
+  names:
+    kind: XKeyVault
+    plural: xkeyvaults
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  environment:
+                    type: string
+                    enum: ["dev", "staging", "prod", "qa"]
+                  namingPrefix:
+                    type: string
+                    pattern: "^astra-(dev|staging|prod|qa)$"
+                  resourceGroupName:
+                    type: string
+                  location:
+                    type: string
+                    default: "Central India"
+                  managedIdentityPrincipalId:
+                    type: string
+                    description: "Principal ID for RBAC assignment"
+                  enableSoftDelete:
+                    type: boolean
+                    default: true
+                  softDeleteRetentionDays:
+                    type: integer
+                    default: 7
+                    minimum: 7
+                    maximum: 90
+                required:
+                - environment
+                - namingPrefix
+                - resourceGroupName
+                - managedIdentityPrincipalId
+            required:
+            - parameters
+          status:
+            type: object
+            properties:
+              vaultName:
+                type: string
+              vaultUri:
+                type: string
+              ready:
+                type: boolean
+  claimNames:
+    kind: KeyVault
+    plural: keyvaults

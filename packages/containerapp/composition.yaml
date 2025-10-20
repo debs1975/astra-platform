@@ -1,0 +1,125 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcontainerapps.astra.platform
+  labels:
+    provider: azure
+    service: containerapp
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: astra.platform/v1alpha1
+    kind: XContainerApp
+  
+  resources:
+  - name: containerapp-environment
+    base:
+      apiVersion: containerapp.azure.upbound.io/v1beta1
+      kind: Environment
+      spec:
+        forProvider:
+          location: "Central India"
+          resourceGroupName: ""
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-cae"
+
+  - name: containerapp
+    base:
+      apiVersion: containerapp.azure.upbound.io/v1beta1
+      kind: App
+      spec:
+        forProvider:
+          resourceGroupName: ""
+          revision:
+          - template:
+            - container:
+              - image: ""
+                name: "main"
+                cpu: 0.25
+                memory: "0.5Gi"
+            maxReplicas: 10
+            minReplicas: 1
+          ingress:
+          - external: true
+            targetPort: 80
+            allowInsecure: false
+          identity:
+          - type: "UserAssigned"
+            userAssignedIdentityIds: []
+          registry:
+          - server: ""
+            identity: ""
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-app"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.containerImage
+      toFieldPath: spec.forProvider.revision[0].template[0].container[0].image
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.containerPort
+      toFieldPath: spec.forProvider.ingress[0].targetPort
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.externalIngress
+      toFieldPath: spec.forProvider.ingress[0].external
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.minReplicas
+      toFieldPath: spec.forProvider.revision[0].template[0].minReplicas
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.maxReplicas
+      toFieldPath: spec.forProvider.revision[0].template[0].maxReplicas
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.cpu
+      toFieldPath: spec.forProvider.revision[0].template[0].container[0].cpu
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.memory
+      toFieldPath: spec.forProvider.revision[0].template[0].container[0].memory
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.managedIdentityId
+      toFieldPath: spec.forProvider.identity[0].userAssignedIdentityIds[0]
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.containerRegistryServer
+      toFieldPath: spec.forProvider.registry[0].server
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.managedIdentityId
+      toFieldPath: spec.forProvider.registry[0].identity
+    - type: FromFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.revision[0].template[0].name
+    - type: ToCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: status.containerAppName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.latestRevisionFqdn
+      toFieldPath: status.fqdn
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.conditions[?(@.type=='Ready')].status
+      toFieldPath: status.ready
+      transforms:
+      - type: map
+        map:
+          "True": true
+          "False": false

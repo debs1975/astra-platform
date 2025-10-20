@@ -1,0 +1,45 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xresourcegroups.astra.platform
+  labels:
+    provider: azure
+    service: resourcegroup
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: astra.platform/v1alpha1
+    kind: XResourceGroup
+  
+  resources:
+  - name: resourcegroup
+    base:
+      apiVersion: azure.upbound.io/v1beta1
+      kind: ResourceGroup
+      spec:
+        forProvider:
+          location: "Central India"
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-rg"
+    - type: ToCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: status.resourceGroupName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.conditions[?(@.type=='Ready')].status
+      toFieldPath: status.ready
+      transforms:
+      - type: map
+        map:
+          "True": true
+          "False": false

@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../packages/platform
+
+patches:
+- target:
+    kind: XPlatform
+    name: ".*"
+  patch: |-
+    - op: replace
+      path: /spec/parameters/namingPrefix
+      value: "astra-prod"
+    - op: replace
+      path: /spec/parameters/location
+      value: "Central India"
+    - op: replace
+      path: /spec/parameters/containerImage
+      value: "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+    - op: replace
+      path: /spec/parameters/containerPort
+      value: 80
+    - op: replace
+      path: /spec/parameters/externalIngress
+      value: true
+    - op: replace
+      path: /spec/parameters/minReplicas
+      value: 3
+    - op: replace
+      path: /spec/parameters/maxReplicas
+      value: 10
+    - op: replace
+      path: /spec/parameters/cpu
+      value: 1.0
+    - op: replace
+      path: /spec/parameters/memory
+      value: "2Gi"
+
+commonLabels:
+  environment: prod
+  platform: astra
+
+namespace: astra-prod

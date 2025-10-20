@@ -1,0 +1,22 @@
+apiVersion: astra.platform/v1alpha1
+kind: XPlatform
+metadata:
+  name: astra-dev-platform
+  namespace: astra-dev
+  labels:
+    environment: dev
+    platform: astra
+spec:
+  parameters:
+    namingPrefix: "astra-dev"
+    location: "Central India"
+    tenantId: "YOUR_TENANT_ID"  # Replace with your Azure tenant ID
+    containerImage: "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+    containerPort: 80
+    externalIngress: true
+    minReplicas: 1
+    maxReplicas: 3
+    cpu: 0.25
+    memory: "0.5Gi"
+  compositionRef:
+    name: xplatforms.astra.platform

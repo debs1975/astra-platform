@@ -1,0 +1,85 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xkeyvaults.astra.platform
+  labels:
+    provider: azure
+    service: keyvault
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: astra.platform/v1alpha1
+    kind: XKeyVault
+  
+  resources:
+  - name: keyvault
+    base:
+      apiVersion: keyvault.azure.upbound.io/v1beta1
+      kind: Vault
+      spec:
+        forProvider:
+          location: "Central India"
+          resourceGroupName: ""
+          skuName: "standard"
+          tenantId: ""
+          enableRbacAuthorization: true
+          enabledForDeployment: false
+          enabledForDiskEncryption: false
+          enabledForTemplateDeployment: false
+          enableSoftDelete: true
+          softDeleteRetentionDays: 7
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-kv"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.enableSoftDelete
+      toFieldPath: spec.forProvider.enableSoftDelete
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.softDeleteRetentionDays
+      toFieldPath: spec.forProvider.softDeleteRetentionDays
+    - type: ToCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: status.vaultName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.vaultUri
+      toFieldPath: status.vaultUri
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.conditions[?(@.type=='Ready')].status
+      toFieldPath: status.ready
+      transforms:
+      - type: map
+        map:
+          "True": true
+          "False": false
+
+  - name: keyvault-rbac-assignment
+    base:
+      apiVersion: authorization.azure.upbound.io/v1beta1
+      kind: RoleAssignment
+      spec:
+        forProvider:
+          principalId: ""
+          roleDefinitionId: "/subscriptions/SUBSCRIPTION_ID_PLACEHOLDER/providers/Microsoft.Authorization/roleDefinitions/4633458b-17de-408a-b874-0445c86b69e6"
+          scope: ""
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.managedIdentityPrincipalId
+      toFieldPath: spec.forProvider.principalId
+    - type: FromFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: spec.forProvider.scope

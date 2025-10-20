@@ -1,0 +1,219 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xplatforms.astra.platform
+  labels:
+    provider: azure
+    service: platform
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: astra.platform/v1alpha1
+    kind: XPlatform
+  
+  resources:
+  - name: resource-group
+    base:
+      apiVersion: astra.platform/v1alpha1
+      kind: XResourceGroup
+      spec:
+        parameters:
+          location: "Central India"
+          namingPrefix: ""
+        compositionRef:
+          name: xresourcegroups.astra.platform
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.parameters.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: spec.parameters.namingPrefix
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.resourceGroupName
+      toFieldPath: status.resourceGroupName
+
+  - name: managed-identity
+    base:
+      apiVersion: astra.platform/v1alpha1
+      kind: XManagedIdentity
+      spec:
+        parameters:
+          location: "Central India"
+          resourceGroupName: ""
+          namingPrefix: ""
+        compositionRef:
+          name: xmanagedidentities.astra.platform
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.parameters.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.resourceGroupName
+      toFieldPath: spec.parameters.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: spec.parameters.namingPrefix
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.identityId
+      toFieldPath: status.managedIdentityId
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.principalId
+      toFieldPath: status.managedIdentityPrincipalId
+
+  - name: keyvault
+    base:
+      apiVersion: astra.platform/v1alpha1
+      kind: XKeyVault
+      spec:
+        parameters:
+          location: "Central India"
+          resourceGroupName: ""
+          namingPrefix: ""
+          tenantId: ""
+          principalId: ""
+        compositionRef:
+          name: xkeyvaults.astra.platform
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.parameters.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.resourceGroupName
+      toFieldPath: spec.parameters.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: spec.parameters.namingPrefix
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.tenantId
+      toFieldPath: spec.parameters.tenantId
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.managedIdentityPrincipalId
+      toFieldPath: spec.parameters.principalId
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.vaultUri
+      toFieldPath: status.keyVaultUri
+
+  - name: container-registry
+    base:
+      apiVersion: astra.platform/v1alpha1
+      kind: XContainerRegistry
+      spec:
+        parameters:
+          location: "Central India"
+          resourceGroupName: ""
+          namingPrefix: ""
+          principalId: ""
+        compositionRef:
+          name: xcontainerregistries.astra.platform
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.parameters.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.resourceGroupName
+      toFieldPath: spec.parameters.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: spec.parameters.namingPrefix
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.managedIdentityPrincipalId
+      toFieldPath: spec.parameters.principalId
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.loginServer
+      toFieldPath: status.containerRegistryServer
+
+  - name: storage-account
+    base:
+      apiVersion: astra.platform/v1alpha1
+      kind: XStorage
+      spec:
+        parameters:
+          location: "Central India"
+          resourceGroupName: ""
+          namingPrefix: ""
+          principalId: ""
+        compositionRef:
+          name: xstorages.astra.platform
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.parameters.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.resourceGroupName
+      toFieldPath: spec.parameters.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: spec.parameters.namingPrefix
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.managedIdentityPrincipalId
+      toFieldPath: spec.parameters.principalId
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.storageAccountName
+      toFieldPath: status.storageAccountName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.primaryBlobEndpoint
+      toFieldPath: status.storageEndpoint
+
+  - name: container-app
+    base:
+      apiVersion: astra.platform/v1alpha1
+      kind: XContainerApp
+      spec:
+        parameters:
+          resourceGroupName: ""
+          namingPrefix: ""
+          containerImage: "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+          containerPort: 80
+          externalIngress: true
+          minReplicas: 1
+          maxReplicas: 10
+          cpu: 0.25
+          memory: "0.5Gi"
+          managedIdentityId: ""
+          containerRegistryServer: ""
+        compositionRef:
+          name: xcontainerapps.astra.platform
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.resourceGroupName
+      toFieldPath: spec.parameters.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: spec.parameters.namingPrefix
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.containerImage
+      toFieldPath: spec.parameters.containerImage
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.containerPort
+      toFieldPath: spec.parameters.containerPort
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.externalIngress
+      toFieldPath: spec.parameters.externalIngress
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.minReplicas
+      toFieldPath: spec.parameters.minReplicas
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.maxReplicas
+      toFieldPath: spec.parameters.maxReplicas
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.cpu
+      toFieldPath: spec.parameters.cpu
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.memory
+      toFieldPath: spec.parameters.memory
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.managedIdentityId
+      toFieldPath: spec.parameters.managedIdentityId
+    - type: FromCompositeFieldPath
+      fromFieldPath: status.containerRegistryServer
+      toFieldPath: spec.parameters.containerRegistryServer
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.containerAppName
+      toFieldPath: status.containerAppName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.fqdn
+      toFieldPath: status.applicationUrl
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.ready
+      toFieldPath: status.ready

@@ -1,0 +1,52 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xresourcegroups.astra.platform
+spec:
+  group: astra.platform
+  names:
+    kind: XResourceGroup
+    plural: xresourcegroups
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  environment:
+                    type: string
+                    enum: ["dev", "staging", "prod", "qa"]
+                    description: "Environment identifier"
+                  location:
+                    type: string
+                    default: "Central India"
+                    description: "Azure region"
+                  namingPrefix:
+                    type: string
+                    pattern: "^astra-(dev|staging|prod|qa)$"
+                    description: "Naming prefix following astra convention"
+                required:
+                - environment
+                - namingPrefix
+            required:
+            - parameters
+          status:
+            type: object
+            properties:
+              resourceGroupName:
+                type: string
+                description: "Created resource group name"
+              ready:
+                type: boolean
+                description: "Resource readiness status"
+  claimNames:
+    kind: ResourceGroup
+    plural: resourcegroups

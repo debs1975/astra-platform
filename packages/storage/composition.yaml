@@ -1,0 +1,89 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xstorageaccounts.astra.platform
+  labels:
+    provider: azure
+    service: storage
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: astra.platform/v1alpha1
+    kind: XStorageAccount
+  
+  resources:
+  - name: storageaccount
+    base:
+      apiVersion: storage.azure.upbound.io/v1beta1
+      kind: Account
+      spec:
+        forProvider:
+          location: "Central India"
+          resourceGroupName: ""
+          accountTier: "Standard"
+          accountReplicationType: "LRS"
+          allowBlobPublicAccess: false
+          enableHttpsTrafficOnly: true
+          minimumTlsVersion: "TLS1_2"
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.accountTier
+      toFieldPath: spec.forProvider.accountTier
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.replicationType
+      toFieldPath: spec.forProvider.accountReplicationType
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.allowBlobPublicAccess
+      toFieldPath: spec.forProvider.allowBlobPublicAccess
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.supportsHttpsTrafficOnly
+      toFieldPath: spec.forProvider.enableHttpsTrafficOnly
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%ssta"
+          type: Format
+    - type: ToCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: status.storageAccountName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.primaryBlobEndpoint
+      toFieldPath: status.primaryEndpoint
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.conditions[?(@.type=='Ready')].status
+      toFieldPath: status.ready
+      transforms:
+      - type: map
+        map:
+          "True": true
+          "False": false
+
+  - name: storage-blob-data-contributor-role
+    base:
+      apiVersion: authorization.azure.upbound.io/v1beta1
+      kind: RoleAssignment
+      spec:
+        forProvider:
+          principalId: ""
+          roleDefinitionId: "/subscriptions/SUBSCRIPTION_ID_PLACEHOLDER/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+          scope: ""
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.managedIdentityPrincipalId
+      toFieldPath: spec.forProvider.principalId
+    - type: FromFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: spec.forProvider.scope

@@ -1,0 +1,55 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xmanagedidentities.astra.platform
+spec:
+  group: astra.platform
+  names:
+    kind: XManagedIdentity
+    plural: xmanagedidentities
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  environment:
+                    type: string
+                    enum: ["dev", "staging", "prod", "qa"]
+                  namingPrefix:
+                    type: string
+                    pattern: "^astra-(dev|staging|prod|qa)$"
+                  resourceGroupName:
+                    type: string
+                    description: "Target resource group"
+                  location:
+                    type: string
+                    default: "Central India"
+                required:
+                - environment
+                - namingPrefix
+                - resourceGroupName
+            required:
+            - parameters
+          status:
+            type: object
+            properties:
+              identityName:
+                type: string
+              principalId:
+                type: string
+              clientId:
+                type: string
+              ready:
+                type: boolean
+  claimNames:
+    kind: ManagedIdentity
+    plural: managedidentities

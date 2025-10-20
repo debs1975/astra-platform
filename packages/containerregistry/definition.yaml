@@ -1,0 +1,63 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcontainerregistries.astra.platform
+spec:
+  group: astra.platform
+  names:
+    kind: XContainerRegistry
+    plural: xcontainerregistries
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  environment:
+                    type: string
+                    enum: ["dev", "staging", "prod", "qa"]
+                  namingPrefix:
+                    type: string
+                    pattern: "^astra-(dev|staging|prod|qa)$"
+                  resourceGroupName:
+                    type: string
+                  location:
+                    type: string
+                    default: "Central India"
+                  managedIdentityPrincipalId:
+                    type: string
+                    description: "Principal ID for AcrPull role assignment"
+                  sku:
+                    type: string
+                    enum: ["Basic", "Standard", "Premium"]
+                    default: "Basic"
+                  adminUserEnabled:
+                    type: boolean
+                    default: false
+                required:
+                - environment
+                - namingPrefix
+                - resourceGroupName
+                - managedIdentityPrincipalId
+            required:
+            - parameters
+          status:
+            type: object
+            properties:
+              registryName:
+                type: string
+              loginServer:
+                type: string
+              ready:
+                type: boolean
+  claimNames:
+    kind: ContainerRegistry
+    plural: containerregistries

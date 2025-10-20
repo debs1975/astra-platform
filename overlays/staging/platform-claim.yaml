@@ -1,0 +1,22 @@
+apiVersion: astra.platform/v1alpha1
+kind: XPlatform
+metadata:
+  name: astra-staging-platform
+  namespace: astra-staging
+  labels:
+    environment: staging
+    platform: astra
+spec:
+  parameters:
+    namingPrefix: "astra-staging"
+    location: "Central India"
+    tenantId: "YOUR_TENANT_ID"  # Replace with your Azure tenant ID
+    containerImage: "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+    containerPort: 80
+    externalIngress: true
+    minReplicas: 2
+    maxReplicas: 5
+    cpu: 0.5
+    memory: "1Gi"
+  compositionRef:
+    name: xplatforms.astra.platform

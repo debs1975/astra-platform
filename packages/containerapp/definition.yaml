@@ -1,0 +1,86 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcontainerapps.astra.platform
+spec:
+  group: astra.platform
+  names:
+    kind: XContainerApp
+    plural: xcontainerapps
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  environment:
+                    type: string
+                    enum: ["dev", "staging", "prod", "qa"]
+                  namingPrefix:
+                    type: string
+                    pattern: "^astra-(dev|staging|prod|qa)$"
+                  resourceGroupName:
+                    type: string
+                  location:
+                    type: string
+                    default: "Central India"
+                  managedIdentityId:
+                    type: string
+                    description: "Managed Identity resource ID"
+                  containerImage:
+                    type: string
+                    description: "Container image with tag"
+                  containerRegistryServer:
+                    type: string
+                    description: "ACR login server"
+                  keyVaultUri:
+                    type: string
+                    description: "Key Vault URI for secrets"
+                  containerPort:
+                    type: integer
+                    default: 80
+                  externalIngress:
+                    type: boolean
+                    default: true
+                  minReplicas:
+                    type: integer
+                    default: 1
+                  maxReplicas:
+                    type: integer
+                    default: 10
+                  cpu:
+                    type: string
+                    default: "0.25"
+                  memory:
+                    type: string
+                    default: "0.5Gi"
+                required:
+                - environment
+                - namingPrefix
+                - resourceGroupName
+                - managedIdentityId
+                - containerImage
+                - containerRegistryServer
+                - keyVaultUri
+            required:
+            - parameters
+          status:
+            type: object
+            properties:
+              containerAppName:
+                type: string
+              fqdn:
+                type: string
+              ready:
+                type: boolean
+  claimNames:
+    kind: ContainerApp
+    plural: containerapps

@@ -1,0 +1,81 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcontainerregistries.astra.platform
+  labels:
+    provider: azure
+    service: containerregistry
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: astra.platform/v1alpha1
+    kind: XContainerRegistry
+  
+  resources:
+  - name: containerregistry
+    base:
+      apiVersion: containerregistry.azure.upbound.io/v1beta1
+      kind: Registry
+      spec:
+        forProvider:
+          location: "Central India"
+          resourceGroupName: ""
+          sku: "Basic"
+          adminEnabled: false
+          anonymousPullEnabled: false
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.sku
+      toFieldPath: spec.forProvider.sku
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.adminUserEnabled
+      toFieldPath: spec.forProvider.adminEnabled
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.namingPrefix
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%sacr"
+          type: Format
+    - type: ToCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: status.registryName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.loginServer
+      toFieldPath: status.loginServer
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.conditions[?(@.type=='Ready')].status
+      toFieldPath: status.ready
+      transforms:
+      - type: map
+        map:
+          "True": true
+          "False": false
+
+  - name: acr-pull-role-assignment
+    base:
+      apiVersion: authorization.azure.upbound.io/v1beta1
+      kind: RoleAssignment
+      spec:
+        forProvider:
+          principalId: ""
+          roleDefinitionId: "/subscriptions/SUBSCRIPTION_ID_PLACEHOLDER/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d"
+          scope: ""
+        providerConfigRef:
+          name: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.managedIdentityPrincipalId
+      toFieldPath: spec.forProvider.principalId
+    - type: FromFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: spec.forProvider.scope
