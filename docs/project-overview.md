@@ -55,7 +55,7 @@ Your containerized application will be running on Azure Container Apps with:
 ```mermaid
 graph TB
     subgraph "Local Environment"
-        K8s[Kubernetes<br/>kind/Docker Desktop]
+        K8s[Kubernetes<br/>Minikube/Docker Desktop]
         CP[Crossplane Control Plane]
         XRD[Platform XRDs]
     end
@@ -121,22 +121,26 @@ astra-platform/
     └── e2e/              # End-to-end tests
 ```
 
-## �📋 Prerequisites
+## 📋 Prerequisites
 
 Before getting started, ensure you have:
 
-- **Kubernetes Cluster**: Docker Desktop, kind, or AKS
+- **Kubernetes Cluster**: Minikube (recommended) or Docker Desktop
 - **Azure Account**: Active subscription with Contributor permissions
 - **Tools**: kubectl, helm, Azure CLI, Docker
 
-For detailed setup instructions, see [Prerequisites Guide](docs/getting-started/prerequisites.md).
+For detailed setup instructions, see:
+- [Prerequisites Guide](docs/getting-started/prerequisites.md)
+- [Minikube Setup Guide](docs/getting-started/minikube-setup.md)
 
 ## 📖 Documentation
 
 ### 🚀 Getting Started
 - [**Prerequisites**](docs/getting-started/prerequisites.md) - Required tools and setup
+- [**Minikube Setup**](docs/getting-started/minikube-setup.md) - Minikube configuration guide
 - [**Initial Setup**](docs/getting-started/initial-setup.md) - Complete setup guide
 - [**Quick Start**](docs/getting-started/quick-start.md) - 15-minute deployment
+- [**GitHub Setup**](docs/GITHUB-SETUP.md) - Push your platform to GitHub
 
 ### 🏗️ Architecture
 - [**Platform Architecture**](docs/architecture/platform-architecture.md) - Technical overview
@@ -149,13 +153,18 @@ For detailed setup instructions, see [Prerequisites Guide](docs/getting-started/
 
 ### ⚙️ Operations
 - [**CI/CD Setup**](docs/operations/cicd-setup.md) - Azure DevOps pipeline configuration
+- [**Azure Resources Creation**](docs/operations/azure-resources-creation.md) - Azure CLI automation guide
 - [**Secret Management**](docs/operations/secret-management.md) - Secure credential handling
 
 ### 🐛 Troubleshooting
 - [**Common Issues**](docs/troubleshooting/common-issues.md) - FAQ and solutions
 - [**Debugging Guide**](docs/troubleshooting/debugging.md) - Step-by-step troubleshooting
 
-### 📚 Complete Documentation
+### 📚 Additional Resources
+- [**Minikube Primary Setup**](docs/MINIKUBE-PRIMARY-SETUP.md) - Complete Minikube migration summary
+- [**GitHub Setup Guide**](docs/GITHUB-SETUP.md) - Repository setup instructions
+
+### 📖 Complete Documentation
 See the [Documentation Index](docs/README.md) for all available guides.
 
 ## 🛠️ Usage Examples

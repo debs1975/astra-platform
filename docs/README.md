@@ -4,7 +4,10 @@ Welcome to the comprehensive documentation for the Astra Platform - a Crossplane
 
 ## 📋 Documentation Index
 
-### � Visual Documentation
+### 📊 Project Overview
+- [**Project Overview**](project-overview.md) - Complete platform overview, features, and usage examples
+
+### 📊 Visual Documentation
 - [**Diagrams Index**](DIAGRAMS.md) - Comprehensive index of all Mermaid diagrams (21 diagrams covering architecture, deployment, security, and CI/CD)
 
 ### 🚀 Getting Started
@@ -28,6 +31,7 @@ Welcome to the comprehensive documentation for the Astra Platform - a Crossplane
 
 ### 🔧 Operations
 - [**CI/CD Setup**](operations/cicd-setup.md) - Azure DevOps pipeline configuration
+- [**Pipelines Guide**](operations/pipelines-guide.md) - Complete Azure DevOps pipelines documentation
 - [**Azure Resources Creation**](operations/azure-resources-creation.md) - Azure CLI automation for resource topology
 - [**Secret Management**](operations/secret-management.md) - Managing Azure credentials and secrets
 - [**Backup & Recovery**](operations/backup-recovery.md) - Backup strategies and disaster recovery
@@ -41,6 +45,7 @@ Welcome to the comprehensive documentation for the Astra Platform - a Crossplane
 
 ### 📚 Reference
 - [**API Reference**](reference/api-reference.md) - Complete API documentation
+- [**Scripts Reference**](reference/scripts-reference.md) - Complete automation scripts documentation
 - [**Configuration Reference**](reference/configuration-reference.md) - All configuration options
 - [**CLI Reference**](reference/cli-reference.md) - Command-line tools reference
 - [**Examples**](reference/examples.md) - Complete examples and use cases
@@ -48,10 +53,15 @@ Welcome to the comprehensive documentation for the Astra Platform - a Crossplane
 ### 🔄 Development
 - [**Contributing Guide**](development/contributing.md) - How to contribute to the platform
 - [**Development Setup**](development/development-setup.md) - Setting up development environment
-- [**Testing Guide**](development/testing.md) - Running and writing tests
+- [**Testing Guide**](development/testing-guide.md) - Comprehensive testing infrastructure and guidelines
 - [**Release Process**](development/release-process.md) - How releases are created
 
-### 📋 Appendices
+### � Planning & Design
+- [**Prompts & Requirements**](planning/prompts.md) - Project requirements, naming conventions, and best practices
+- [**Execution Plan**](planning/execution-plan.md) - Complete implementation plan with phases and tasks
+- [**Setup Updates**](planning/setup-updates.md) - Minikube primary configuration and setup details
+
+### �📋 Appendices
 - [**Glossary**](appendices/glossary.md) - Terms and definitions
 - [**Resource Limits**](appendices/resource-limits.md) - Azure resource limits and quotas
 - [**Best Practices**](appendices/best-practices.md) - Platform best practices
