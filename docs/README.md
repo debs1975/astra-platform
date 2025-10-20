@@ -12,6 +12,7 @@ Welcome to the comprehensive documentation for the Astra Platform - a Crossplane
 - [**Minikube Setup**](getting-started/minikube-setup.md) - Comprehensive Minikube configuration for Crossplane
 - [**Initial Setup Guide**](getting-started/initial-setup.md) - Complete setup from scratch
 - [**Quick Start**](getting-started/quick-start.md) - 15-minute deployment guide
+- [**GitHub Setup**](GITHUB-SETUP.md) - Push your platform to GitHub
 
 ### 🏗️ Architecture & Design
 - [**Platform Architecture**](architecture/platform-architecture.md) - High-level architecture overview
@@ -55,6 +56,10 @@ Welcome to the comprehensive documentation for the Astra Platform - a Crossplane
 - [**Resource Limits**](appendices/resource-limits.md) - Azure resource limits and quotas
 - [**Best Practices**](appendices/best-practices.md) - Platform best practices
 - [**Migration Guide**](appendices/migration-guide.md) - Migrating from other platforms
+
+### 📚 Additional Resources
+- [**Minikube Primary Setup**](MINIKUBE-PRIMARY-SETUP.md) - Complete Minikube setup summary
+- [**GitHub Setup Guide**](GITHUB-SETUP.md) - Repository setup and push instructions
 
 ## 🎯 Quick Navigation
 

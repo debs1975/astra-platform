@@ -125,18 +125,22 @@ astra-platform/
 
 Before getting started, ensure you have:
 
-- **Kubernetes Cluster**: Minikube (recommended), Docker Desktop, or AKS
+- **Kubernetes Cluster**: Minikube (recommended) or Docker Desktop
 - **Azure Account**: Active subscription with Contributor permissions
-- **Tools**: kubectl, helm, Azure CLI, Docker, Minikube
+- **Tools**: kubectl, helm, Azure CLI, Docker
 
-For detailed setup instructions, see [Prerequisites Guide](docs/getting-started/prerequisites.md).
+For detailed setup instructions, see:
+- [Prerequisites Guide](docs/getting-started/prerequisites.md)
+- [Minikube Setup Guide](docs/getting-started/minikube-setup.md)
 
 ## 📖 Documentation
 
 ### 🚀 Getting Started
 - [**Prerequisites**](docs/getting-started/prerequisites.md) - Required tools and setup
+- [**Minikube Setup**](docs/getting-started/minikube-setup.md) - Minikube configuration guide
 - [**Initial Setup**](docs/getting-started/initial-setup.md) - Complete setup guide
 - [**Quick Start**](docs/getting-started/quick-start.md) - 15-minute deployment
+- [**GitHub Setup**](docs/GITHUB-SETUP.md) - Push your platform to GitHub
 
 ### 🏗️ Architecture
 - [**Platform Architecture**](docs/architecture/platform-architecture.md) - Technical overview
@@ -156,7 +160,11 @@ For detailed setup instructions, see [Prerequisites Guide](docs/getting-started/
 - [**Common Issues**](docs/troubleshooting/common-issues.md) - FAQ and solutions
 - [**Debugging Guide**](docs/troubleshooting/debugging.md) - Step-by-step troubleshooting
 
-### 📚 Complete Documentation
+### 📚 Additional Resources
+- [**Minikube Primary Setup**](docs/MINIKUBE-PRIMARY-SETUP.md) - Complete Minikube migration summary
+- [**GitHub Setup Guide**](docs/GITHUB-SETUP.md) - Repository setup instructions
+
+### 📖 Complete Documentation
 See the [Documentation Index](docs/README.md) for all available guides.
 
 ## 🛠️ Usage Examples
