@@ -6,10 +6,10 @@ metadata:
   title: Iac Crossplane Azure Platform
   description: "Crossplane based Azure platform for deploying containerized applications with managed identities and resource groups."
   tags:
-    - IaC
     - crossplane
     - azure
     - platform
+    - iac
 spec:
   type: service
   lifecycle: experimental
