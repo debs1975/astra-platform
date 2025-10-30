@@ -21,7 +21,7 @@ metadata:
   title: Iac Crossplane Azure Platform
   description: "Crossplane based Azure platform for deploying containerized applications with managed identities and resource groups."
   annotations:
-    backstage.io/techdocs-ref: url:https://github.com/debs1975/astra-platform/tree/main/docs
+    backstage.io/techdocs-ref: url:https://github.com/debs1975/astra-platform/tree/main
   tags:
     - crossplane
     - azure
