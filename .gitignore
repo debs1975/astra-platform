@@ -92,3 +92,11 @@ local-values.yaml
 # Sensitive test data
 tests/.env.test.local
 tests/credentials/
+
+#Creds for Azure
+azure-credentials.json
+service-principal.json
+credentials/
+credentials/azure-credentials.json
+credentials/service-principal.json
+credentials/azure-credentials.json

@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: Iac-Crossplane-Azure-Platform
+  displayName: Iac Crossplane Azure Platform
+  title: Iac Crossplane Azure Platform
+  description: "Crossplane based Azure platform for deploying containerized applications with managed identities and resource groups."
+  tags:
+    - IaC
+    - crossplane
+    - azure
+    - platform
+spec:
+  type: service
+  lifecycle: experimental
+  owner: debs1975
