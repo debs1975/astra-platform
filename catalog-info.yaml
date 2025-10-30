@@ -1,3 +1,18 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: debs1975
+  description: Platform engineering team led by debs1975
+spec:
+  type: team
+  profile:
+    displayName: Platform Team
+    email: platform-team@company.com
+  parent: platform-engineering
+  children: []
+---
+
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
@@ -5,6 +20,8 @@ metadata:
   displayName: Iac Crossplane Azure Platform
   title: Iac Crossplane Azure Platform
   description: "Crossplane based Azure platform for deploying containerized applications with managed identities and resource groups."
+  annotations:
+    backstage.io/techdocs-ref: url:https://github.com/debs1975/astra-platform/tree/main/docs
   tags:
     - crossplane
     - azure
@@ -13,4 +30,4 @@ metadata:
 spec:
   type: service
   lifecycle: experimental
-  owner: debs1975
+  owner: group:default/debs1975
